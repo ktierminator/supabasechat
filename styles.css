@@ -1,19 +1,31 @@
 /* CSS Reset and Variables */
+/* --- THEME VARIABLES --- */
 :root {
-  --primary: #007aff;
-  --primary-hover: #0062cc;
-  --danger: #ff3b30;
-  --danger-hover: #cc2f26;
+  /* Default Light Mode */
   --bg-color: #f2f2f7;
   --card-bg: #ffffff;
   --text-main: #1c1c1e;
   --text-muted: #8e8e93;
   --border-color: #e5e5ea;
+  --primary: #007aff;
   --me-bg: #007aff;
   --me-text: #ffffff;
   --other-bg: #e5e5ea;
   --other-text: #000000;
-  --border-radius: 12px;
+}
+
+/* Dark Mode Class */
+body.dark-mode {
+  --bg-color: #000000;
+  --card-bg: #1c1c1e;
+  --text-main: #f2f2f7;
+  --text-muted: #aeaeb2;
+  --border-color: #38383a;
+  --primary: #0a84ff;
+  --me-bg: #0a84ff;
+  --me-text: #ffffff;
+  --other-bg: #3a3a3c;
+  --other-text: #ffffff;
 }
 
 * {
@@ -381,4 +393,25 @@ body {
   cursor: pointer;
   font-weight: bold;
   margin-left: 8px;
+}
+
+
+
+/* --- ADD THIS AT THE END OF YOUR CSS --- */
+.theme-toggle {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 1000;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
