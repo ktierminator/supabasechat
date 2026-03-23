@@ -7,6 +7,11 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// --- THEME DOM ELEMENTS ---
+const themeBtn = document.getElementById('theme-btn');
+const sunIcon = document.getElementById('sun-icon');
+const moonIcon = document.getElementById('moon-icon');
+
 // State
 let currentRoom = null;
 let currentUser = null;
@@ -20,6 +25,37 @@ const messageInput = document.getElementById('message-input');
 const fileInput = document.getElementById('file-input');
 
 function init() {
+ // ... (keep your existing room and user check code here)
+
+  // NEW: Check for saved theme preference
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    document.body.classList.add('dark-mode');
+    sunIcon.classList.remove('hidden');
+    moonIcon.classList.remove('hidden'); // Ensure both are handled
+    moonIcon.classList.add('hidden');
+  
+
+  // NEW: Theme Toggle Click Logic
+  themeBtn.onclick = () => {
+    const isDark = document.body.classList.toggle('dark-mode');
+    
+    // Save the choice to the user's browser
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    
+    // Switch the icons
+    if (isDark) {
+      sunIcon.classList.remove('hidden');
+      moonIcon.classList.add('hidden');
+    } else {
+      sunIcon.classList.add('hidden');
+      moonIcon.classList.remove('hidden');
+    }
+  };
+
+  // ... (keep the rest of your event listeners here)
+}
+  
   const urlParams = new URLSearchParams(window.location.search);
   const roomParam = urlParams.get('room');
   const savedUser = localStorage.getItem('chat_username');
@@ -178,26 +214,5 @@ function copyLink() {
   alert("Invite link copied!");
 }
 
-// --- THEME TOGGLE LOGIC ---
-const themeBtn = document.getElementById('theme-btn');
-const sunIcon = document.getElementById('sun-icon');
-const moonIcon = document.getElementById('moon-icon');
 
-// Check for saved theme preference
-if (localStorage.getItem('theme') === 'dark') {
-  document.body.classList.add('dark-mode');
-  sunIcon.classList.remove('hidden');
-  moonIcon.classList.add('hidden');
-}
-
-themeBtn.onclick = () => {
-  const isDark = document.body.classList.toggle('dark-mode');
-  
-  // Save preference
-  localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  
-  // Update Icons
-  sunIcon.classList.toggle('hidden', !isDark);
-  moonIcon.classList.toggle('hidden', isDark);
-};
 init();
