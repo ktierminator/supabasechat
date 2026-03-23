@@ -24,37 +24,48 @@ const messagesList = document.getElementById('messages-list');
 const messageInput = document.getElementById('message-input');
 const fileInput = document.getElementById('file-input');
 
-function init() {
- // ... (keep your existing room and user check code here)
 
-  // NEW: Check for saved theme preference
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme === 'dark') {
-    document.body.classList.add('dark-mode');
-    sunIcon.classList.remove('hidden');
-    moonIcon.classList.remove('hidden'); // Ensure both are handled
-    moonIcon.classList.add('hidden');
-  
-
-  // NEW: Theme Toggle Click Logic
-  themeBtn.onclick = () => {
+// 2. Add a direct Event Listener (this is more reliable than .onclick)
+if (themeBtn) {
+  themeBtn.addEventListener('click', () => {
+    // Toggle the class on the body
     const isDark = document.body.classList.toggle('dark-mode');
     
-    // Save the choice to the user's browser
+    // Save the preference
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
     
     // Switch the icons
-    if (isDark) {
-      sunIcon.classList.remove('hidden');
-      moonIcon.classList.add('hidden');
-    } else {
-      sunIcon.classList.add('hidden');
-      moonIcon.classList.remove('hidden');
-    }
-  };
-
-  // ... (keep the rest of your event listeners here)
+    updateThemeIcons(isDark);
+    
+    console.log("Theme toggled! Dark mode is now:", isDark);
+  });
 }
+
+// 3. Create a helper function to handle the icons
+function updateThemeIcons(isDark) {
+  if (isDark) {
+    sunIcon.classList.remove('hidden');
+    moonIcon.classList.add('hidden');
+  } else {
+    sunIcon.classList.add('hidden');
+    moonIcon.classList.remove('hidden');
+  }
+}
+
+// 4. Inside your existing init() function, add the "Load" check
+function init() {
+  // ... existing code ...
+
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    document.body.classList.add('dark-mode');
+    updateThemeIcons(true);
+  }
+  
+  // ... rest of init ...
+}
+
+function init() {
   
   const urlParams = new URLSearchParams(window.location.search);
   const roomParam = urlParams.get('room');
