@@ -178,4 +178,26 @@ function copyLink() {
   alert("Invite link copied!");
 }
 
+// --- THEME TOGGLE LOGIC ---
+const themeBtn = document.getElementById('theme-btn');
+const sunIcon = document.getElementById('sun-icon');
+const moonIcon = document.getElementById('moon-icon');
+
+// Check for saved theme preference
+if (localStorage.getItem('theme') === 'dark') {
+  document.body.classList.add('dark-mode');
+  sunIcon.classList.remove('hidden');
+  moonIcon.classList.add('hidden');
+}
+
+themeBtn.onclick = () => {
+  const isDark = document.body.classList.toggle('dark-mode');
+  
+  // Save preference
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  
+  // Update Icons
+  sunIcon.classList.toggle('hidden', !isDark);
+  moonIcon.classList.toggle('hidden', isDark);
+};
 init();
