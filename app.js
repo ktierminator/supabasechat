@@ -18,6 +18,28 @@ const chatView = document.getElementById('chat-view');
 const messagesList = document.getElementById('messages-list');
 const messageInput = document.getElementById('message-input');
 const fileInput = document.getElementById('file-input');
+// --- THEME TOGGLE LOGIC ---
+const themeBtn = document.getElementById('theme-btn');
+const sunIcon = document.getElementById('sun-icon');
+const moonIcon = document.getElementById('moon-icon');
+
+// Check for saved theme preference
+if (localStorage.getItem('theme') === 'dark') {
+  document.body.classList.add('dark-mode');
+  sunIcon.classList.remove('hidden');
+  moonIcon.classList.add('hidden');
+}
+
+themeBtn.onclick = () => {
+  const isDark = document.body.classList.toggle('dark-mode');
+  
+  // Save preference
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  
+  // Update Icons
+  sunIcon.classList.toggle('hidden', !isDark);
+  moonIcon.classList.toggle('hidden', isDark);
+};
 
 function init() {
   const urlParams = new URLSearchParams(window.location.search);
