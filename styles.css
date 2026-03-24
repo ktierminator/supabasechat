@@ -3,6 +3,7 @@
 :root {
   /* Default Light Mode */
   --bg-color: #f2f2f7;
+  --bg-bg: #1c1c1e;
   --card-bg: #ffffff;
   --text-main: #1c1c1e;
   --text-muted: #8e8e93;
@@ -17,7 +18,7 @@
 /* Dark Mode Class */
 body.dark-mode {
   --bg-color: #000000;
-  --bg-bg: #1c1c1e
+  --bg-bg: #1c1c1e;
   --card-bg: #1c1c1e;
   --text-main: #f2f2f7;
   --text-muted: #aeaeb2;
