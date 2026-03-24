@@ -1,16 +1,11 @@
 /**
-* SUPABASE CONFIGURATION
-* Get these from your Supabase Project Settings -> API
-*/
+ * SUPABASE CONFIGURATION
+ * Get these from your Supabase Project Settings -> API
+ */
 const SUPABASE_URL = "https://qjoyjmjtkcblwfpggzwq.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqb3lqbWp0a2NibHdmcGdnendxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzM0MTMsImV4cCI6MjA4OTgwOTQxM30.C_5BGwZzvs5gLBdz7H-vvDhsHUV83oy2ypSG3jBK6oI";
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// --- THEME DOM ELEMENTS ---
-const themeBtn = document.getElementById('theme-btn');
-const sunIcon = document.getElementById('sun-icon');
-const moonIcon = document.getElementById('moon-icon');
 
 // State
 let currentRoom = null;
@@ -25,215 +20,187 @@ const messageInput = document.getElementById('message-input');
 const fileInput = document.getElementById('file-input');
 
 function init() {
- // ... (keep your existing room and user check code here)
+  const urlParams = new URLSearchParams(window.location.search);
+  const roomParam = urlParams.get('room');
+  const savedUser = localStorage.getItem('chat_username');
 
-  // NEW: Check for saved theme preference
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme === 'dark') {
-    document.body.classList.add('dark-mode');
-    sunIcon.classList.remove('hidden');
-    moonIcon.classList.remove('hidden'); // Ensure both are handled
-    moonIcon.classList.add('hidden');
-  
+  if (savedUser) {
+    document.getElementById('join-username').value = savedUser;
+    document.getElementById('create-username').value = savedUser;
+  }
+  if (roomParam) {
+    document.getElementById('join-code').value = roomParam.toUpperCase();
+    switchTab('join');
+  }
 
-  // NEW: Theme Toggle Click Logic
-  themeBtn.onclick = () => {
-    const isDark = document.body.classList.toggle('dark-mode');
-    
-    // Save the choice to the user's browser
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    
-    // Switch the icons
-    if (isDark) {
-      sunIcon.classList.remove('hidden');
-      moonIcon.classList.add('hidden');
-    } else {
-      sunIcon.classList.add('hidden');
-      moonIcon.classList.remove('hidden');
-    }
-  };
-
-  // ... (keep the rest of your event listeners here)
-}
-  
-const urlParams = new URLSearchParams(window.location.search);
-const roomParam = urlParams.get('room');
-const savedUser = localStorage.getItem('chat_username');
-
-if (savedUser) {
-document.getElementById('join-username').value = savedUser;
-document.getElementById('create-username').value = savedUser;
-}
-if (roomParam) {
-document.getElementById('join-code').value = roomParam.toUpperCase();
-switchTab('join');
-}
-
-document.getElementById('tab-join').onclick = () => switchTab('join');
-document.getElementById('tab-create').onclick = () => switchTab('create');
-document.getElementById('form-join').onsubmit = handleJoin;
-document.getElementById('form-create').onsubmit = handleCreate;
-document.getElementById('form-message').onsubmit = sendMessage;
-document.getElementById('btn-leave').onclick = () => window.location.reload();
-document.getElementById('btn-copy-link').onclick = copyLink;
-fileInput.onchange = handleFileSelect;
-document.getElementById('btn-clear-file').onclick = clearFile;
+  document.getElementById('tab-join').onclick = () => switchTab('join');
+  document.getElementById('tab-create').onclick = () => switchTab('create');
+  document.getElementById('form-join').onsubmit = handleJoin;
+  document.getElementById('form-create').onsubmit = handleCreate;
+  document.getElementById('form-message').onsubmit = sendMessage;
+  document.getElementById('btn-leave').onclick = () => window.location.reload();
+  document.getElementById('btn-copy-link').onclick = copyLink;
+  fileInput.onchange = handleFileSelect;
+  document.getElementById('btn-clear-file').onclick = clearFile;
 }
 
 function switchTab(type) {
-const isJoin = type === 'join';
-document.getElementById('tab-join').classList.toggle('active', isJoin);
-document.getElementById('tab-create').classList.toggle('active', !isJoin);
-document.getElementById('form-join').classList.toggle('hidden', !isJoin);
-document.getElementById('form-create').classList.toggle('hidden', isJoin);
+  const isJoin = type === 'join';
+  document.getElementById('tab-join').classList.toggle('active', isJoin);
+  document.getElementById('tab-create').classList.toggle('active', !isJoin);
+  document.getElementById('form-join').classList.toggle('hidden', !isJoin);
+  document.getElementById('form-create').classList.toggle('hidden', isJoin);
 }
 
 async function handleCreate(e) {
-e.preventDefault();
-const user = document.getElementById('create-username').value.trim();
-const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-
-// In Supabase, we "upsert" the room
-const { error } = await supabase.from('rooms').insert([{ code: roomCode, creator: user }]);
-if (error) return alert("Error creating room");
-
-startChat(user, roomCode);
+  e.preventDefault();
+  const user = document.getElementById('create-username').value.trim();
+  
+  // Generate a random 6-character room code
+  const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+  
+  // Try to insert the new room into Supabase
+  const { data, error } = await supabase.from('rooms').insert([{ code: roomCode, creator: user }]);
+  
+  // If there is an error, show exactly what the database complained about
+  if (error) {
+    console.error("Supabase Database Error:", error);
+    return alert("Error creating room: " + error.message);
+  }
+  
+  // If successful, start the chat!
+  startChat(user, roomCode);
 }
 
 async function handleJoin(e) {
-e.preventDefault();
-const user = document.getElementById('join-username').value.trim();
-const code = document.getElementById('join-code').value.trim().toUpperCase();
+  e.preventDefault();
+  const user = document.getElementById('join-username').value.trim();
+  const code = document.getElementById('join-code').value.trim().toUpperCase();
 
-const { data, error } = await supabase.from('rooms').select('*').eq('code', code).single();
-if (error || !data) return alert("Room not found!");
+  const { data, error } = await supabase.from('rooms').select('*').eq('code', code).single();
+  if (error || !data) return alert("Room not found!");
 
-startChat(user, code);
+  startChat(user, code);
 }
 
 function startChat(user, code) {
-currentUser = user;
-currentRoom = code;
-localStorage.setItem('chat_username', user);
+  currentUser = user;
+  currentRoom = code;
+  localStorage.setItem('chat_username', user);
+  
+  document.getElementById('room-code-display').innerText = `Room: ${code}`;
+  document.getElementById('current-user-display').innerText = `You: ${user}`;
+  
+  landingView.classList.add('hidden');
+  chatView.classList.remove('hidden');
 
-document.getElementById('room-code-display').innerText = `Room: ${code}`;
-document.getElementById('current-user-display').innerText = `You: ${user}`;
-
-landingView.classList.add('hidden');
-chatView.classList.remove('hidden');
-
-loadHistory();
-subscribeToMessages();
+  loadHistory();
+  subscribeToMessages();
 }
 
 async function loadHistory() {
-const { data } = await supabase.from('messages')
-.select('*')
-.eq('room_code', currentRoom)
-.order('created_at', { ascending: true });
-
-if (data) data.forEach(renderMessage);
+  const { data } = await supabase.from('messages')
+    .select('*')
+    .eq('room_code', currentRoom)
+    .order('created_at', { ascending: true });
+  
+  if (data) data.forEach(renderMessage);
 }
 
 function subscribeToMessages() {
-messageSubscription = supabase
-.channel('public:messages')
-.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_code=eq.${currentRoom}` }, 
-payload => {
-renderMessage(payload.new);
-})
-.subscribe();
+  messageSubscription = supabase
+    .channel('public:messages')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `room_code=eq.${currentRoom}` }, 
+    payload => {
+      renderMessage(payload.new);
+    })
+    .subscribe();
 }
 
 async function sendMessage(e) {
-e.preventDefault();
-const text = messageInput.value.trim();
-const file = fileInput.files[0];
-if (!text && !file) return;
+  e.preventDefault();
+  const text = messageInput.value.trim();
+  const file = fileInput.files[0];
+  if (!text && !file) return;
 
-document.getElementById('btn-send').disabled = true;
-let mediaUrl = null;
+  document.getElementById('btn-send').disabled = true;
+  let mediaUrl = null;
 
-if (file) {
-document.getElementById('upload-indicator').classList.remove('hidden');
-const fileName = `${Date.now()}_${file.name}`;
-const { data, error } = await supabase.storage.from('chat-media').upload(`${currentRoom}/${fileName}`, file);
-if (data) {
-const { data: urlData } = supabase.storage.from('chat-media').getPublicUrl(`${currentRoom}/${fileName}`);
-mediaUrl = urlData.publicUrl;
-}
-}
+  if (file) {
+    document.getElementById('upload-indicator').classList.remove('hidden');
+    const fileName = `${Date.now()}_${file.name}`;
+    const { data, error } = await supabase.storage.from('chat-media').upload(`${currentRoom}/${fileName}`, file);
+    if (data) {
+      const { data: urlData } = supabase.storage.from('chat-media').getPublicUrl(`${currentRoom}/${fileName}`);
+      mediaUrl = urlData.publicUrl;
+    }
+  }
 
-await supabase.from('messages').insert([{
-room_code: currentRoom,
-username: currentUser,
-content: text,
-media_url: mediaUrl,
-media_type: file ? (file.type.startsWith('video') ? 'video' : 'image') : null
-}]);
+  await supabase.from('messages').insert([{
+    room_code: currentRoom,
+    username: currentUser,
+    content: text,
+    media_url: mediaUrl,
+    media_type: file ? (file.type.startsWith('video') ? 'video' : 'image') : null
+  }]);
 
-messageInput.value = '';
-clearFile();
-document.getElementById('btn-send').disabled = false;
-document.getElementById('upload-indicator').classList.add('hidden');
+  messageInput.value = '';
+  clearFile();
+  document.getElementById('btn-send').disabled = false;
+  document.getElementById('upload-indicator').classList.add('hidden');
 }
 
 function renderMessage(msg) {
-const isMe = msg.username === currentUser;
-const div = document.createElement('div');
-div.className = `message-wrapper ${isMe ? 'me' : 'other'}`;
+  const isMe = msg.username === currentUser;
+  const div = document.createElement('div');
+  div.className = `message-wrapper ${isMe ? 'me' : 'other'}`;
+  
+  // Create the Media HTML only if a URL exists
+  let mediaHtml = '';
+  if (msg.media_url) {
+    if (msg.media_type === 'video') {
+      mediaHtml = `<div class="message-media"><video src="${msg.media_url}" controls style="max-width:100%; border-radius:8px;"></video></div>`;
+    } else {
+      // Added an 'onerror' to help you debug if the link is broken
+      mediaHtml = `
+        <div class="message-media">
+          <img src="${msg.media_url}" 
+               style="max-width:100%; border-radius:8px;" 
+               onerror="this.onerror=null; this.src='https://placehold.co/200?text=Image+Load+Error';" />
+        </div>`;
+    }
+  }
 
-div.innerHTML = `
-   <div class="message-sender">${msg.username}</div>
-   <div class="message-bubble">
-     ${msg.media_url ? (msg.media_type === 'video' ? `<video src="${msg.media_url}" controls></video>` : `<img src="${msg.media_url}" />`) : ''}
-     <p>${msg.content || ''}</p>
-     <span class="message-time">${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-   </div>
- `;
-messagesList.appendChild(div);
-messagesList.scrollTop = messagesList.scrollHeight;
+  div.innerHTML = `
+    <div class="message-sender">${msg.username}</div>
+    <div class="message-bubble">
+      ${mediaHtml}
+      <p>${msg.content || ''}</p>
+      <span class="message-time">${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+    </div>
+  `;
+  
+  messagesList.appendChild(div);
+  messagesList.scrollTop = messagesList.scrollHeight;
 }
 
 function handleFileSelect() {
-const file = fileInput.files[0];
-if (file) {
-document.getElementById('file-preview-name').classList.remove('hidden');
-document.getElementById('file-preview-name').querySelector('span').innerText = file.name;
-}
+  const file = fileInput.files[0];
+  if (file) {
+    document.getElementById('file-preview-name').classList.remove('hidden');
+    document.getElementById('file-preview-name').querySelector('span').innerText = file.name;
+  }
 }
 
 function clearFile() {
-fileInput.value = '';
-document.getElementById('file-preview-name').classList.add('hidden');
+  fileInput.value = '';
+  document.getElementById('file-preview-name').classList.add('hidden');
 }
 
 function copyLink() {
-const link = `${window.location.origin}${window.location.pathname}?room=${currentRoom}`;
-navigator.clipboard.writeText(link);
-alert("Invite link copied!");
+  const link = `${window.location.origin}${window.location.pathname}?room=${currentRoom}`;
+  navigator.clipboard.writeText(link);
+  alert("Invite link copied!");
 }
 
-// --- THEME TOGGLE LOGIC ---
-const themeBtn = document.getElementById('theme-btn');
-const sunIcon = document.getElementById('sun-icon');
-const moonIcon = document.getElementById('moon-icon');
-
-// Check for saved theme preference
-if (localStorage.getItem('theme') === 'dark') {
-  document.body.classList.add('dark-mode');
-  sunIcon.classList.remove('hidden');
-  moonIcon.classList.add('hidden');
-}
-
-themeBtn.onclick = () => {
-  const isDark = document.body.classList.toggle('dark-mode');
-  
-  // Save preference
-  localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  
-  // Update Icons
-  sunIcon.classList.toggle('hidden', !isDark);
-  moonIcon.classList.toggle('hidden', isDark);
-};
 init();
