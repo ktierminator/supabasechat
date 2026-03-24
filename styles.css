@@ -13,6 +13,7 @@
   --me-text: #ffffff;
   --other-bg: #e5e5ea;
   --other-text: #000000;
+  --danger: #e12d2d;
 }
 
 /* Dark Mode Class */
@@ -28,6 +29,7 @@ body.dark-mode {
   --me-text: #ffffff;
   --other-bg: #3a3a3c;
   --other-text: #ffffff;
+  --danger: #e12d2d;
 }
 
 
