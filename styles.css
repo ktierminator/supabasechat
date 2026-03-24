@@ -266,7 +266,7 @@ body {
   gap: 8px;
 }
 
-.messages-list {
+.s-list {
   flex: 1;
   padding: 16px;
   overflow-y: auto;
@@ -335,50 +335,7 @@ body {
   display: block;
   cursor: pointer;
 }
-.online-status {
-  font-size: 12px;
-  color: #34c759; /* Modern "Live" Green */
-  font-weight: bold;
-  margin-top: 4px;
-}
 
-.members-sidebar {
-  background: var(--bg-color);
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  border: 1px solid var(--border-color);
-}
-
-.members-sidebar h3 {
-  font-size: 11px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
-}
-
-#user-ul {
-  list-style: none;
-  font-size: 13px;
-  max-height: 100px; /* Limits height so it doesn't push the chat away */
-  overflow-y: auto;
-}
-
-#user-ul li {
-  padding: 4px 0;
-  color: var(--text-main);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-/* ========================================== */
-
-/* ... .chat-footer starts here ... */
-.chat-footer { 
-  border-top: 1px solid var(--border-color); 
-  padding-top: 10px; 
-}
 .message-time {
   font-size: 10px;
   margin-top: 4px;
