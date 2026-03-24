@@ -2,7 +2,7 @@
 /* --- THEME VARIABLES --- */
 :root {
   /* Default Light Mode */
-  --bg-color: #f2f2f7;
+  
   --bg-bg: #f2f2f7;
   --card-bg: #ffffff;
   --text-main: #1c1c1e;
@@ -18,7 +18,7 @@
 
 /* Dark Mode Class */
 body.dark-mode {
-  --bg-color: #000000;
+  
   --bg-bg: #1c1c1e;
   --card-bg: #1c1c1e;
   --text-main: #f2f2f7;
