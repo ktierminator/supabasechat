@@ -59,7 +59,17 @@
             <button id="btn-leave" class="btn btn-danger btn-sm">Leave</button>
           </div>
         </header>
+        
+<div class="chat-tabs">
+  <button id="show-messages" class="chat-tab active">Messages</button>
+  <button id="show-members" class="chat-tab">Members (<span id="online-count">0</span>)</button>
+</div>
 
+<div id="members-view" class="members-container hidden">
+  <ul id="user-ul">
+    </ul>
+</div>
+        
         <main id="messages-list" class="messages-list"></main>
 
         <footer class="chat-footer">

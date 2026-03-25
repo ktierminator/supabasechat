@@ -417,3 +417,47 @@ body {
   font-weight: bold;
   margin-left: 8px;
 }
+
+.chat-tabs {
+  display: flex;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.chat-tab {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.chat-tab.active {
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+}
+
+.members-container {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+#user-ul {
+  list-style: none;
+}
+
+#user-ul li {
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+}
+
+#user-ul li::before {
+  content: "●";
+  color: #34c759;
+  margin-right: 10px;
+}
