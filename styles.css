@@ -1,5 +1,6 @@
 /* CSS Reset and Variables */
 /* --- THEME VARIABLES --- */
+* { box-sizing: border-box; }
 :root {
   /* Default Light Mode */
   
