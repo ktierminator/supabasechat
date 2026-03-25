@@ -106,6 +106,53 @@ async function handleJoin(e) {
 }
 
 function startChat(user, code) {
+
+  // Tab Switching Logic
+const btnMsgs = document.getElementById('show-messages');
+const btnMembs = document.getElementById('show-members');
+const msgView = document.getElementById('messages-list');
+const memView = document.getElementById('members-view');
+
+btnMsgs.addEventListener('click', () => {
+  btnMsgs.classList.add('active');
+  btnMembs.classList.remove('active');
+  msgView.classList.remove('hidden');
+  memView.classList.add('hidden');
+});
+
+btnMembs.addEventListener('click', () => {
+  btnMembs.classList.add('active');
+  btnMsgs.classList.remove('active');
+  memView.classList.remove('hidden');
+  msgView.classList.add('hidden');
+});
+  
+  // 1. Set up the presence channel
+const presenceChannel = supabase.channel(`presence:${code}`, {
+  config: { presence: { key: user } }
+});
+
+// 2. Listen for changes in who is online
+presenceChannel.on('presence', { event: 'sync' }, () => {
+  const state = presenceChannel.presenceState();
+  const usernames = Object.keys(state);
+  
+  // Update the Tab Count
+  document.getElementById('online-count').innerText = usernames.length;
+  
+  // Update the Members List
+  const list = document.getElementById('user-ul');
+  list.innerHTML = usernames.map(name => `<li>${name} ${name === currentUser ? '(You)' : ''}</li>`).join('');
+});
+
+// 3. Join the presence tracking
+presenceChannel.subscribe(async (status) => {
+  if (status === 'SUBSCRIBED') {
+    await presenceChannel.track({ online_at: new Date().toISOString() });
+  }
+  
+});
+  
   currentUser = user;
   currentRoom = code;
   localStorage.setItem('chat_username', user);
